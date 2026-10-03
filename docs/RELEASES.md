@@ -39,9 +39,12 @@ O checksum é obrigatório para a página Updates considerar o pacote instaláve
 
 ## Workflow
 
-O workflow `.github/workflows/release.yml` é disparado quando uma tag `v*` é enviada.
+O processo público usa dois workflows:
 
-Ele:
+- `.github/workflows/publish.yml`: aceita somente branches `publish/vX.Y.Z`, exige que o nome coincida com `VERSION`, exige a nota de release e confirma que o commit é exatamente o mesmo de `main`. Só então cria a tag.
+- `.github/workflows/release.yml`: é disparado pela tag `v*`.
+
+O workflow de release:
 
 1. confere se a tag corresponde ao arquivo `VERSION`;
 2. executa os testes do backend e o build do frontend;
@@ -49,6 +52,8 @@ Ele:
 4. gera o tarball;
 5. calcula SHA-256;
 6. publica a GitHub Release usando as notas versionadas.
+
+Para publicar uma versão, crie a branch `publish/vX.Y.Z` a partir do commit estável de `main`. O fluxo não aceita publicar uma branch que esteja divergente da `main`.
 
 ## Instalação pela página Updates
 
@@ -77,6 +82,8 @@ Base RF validada em 01/10/2026. O marco técnico está documentado em `docs/rele
 
 Camada web, API, collector, estatísticas, settings, diagnostics e mecanismo de updates. As notas ficam em `docs/releases/v0.2.0.md` até a publicação.
 
-## Repositório privado
+## Repositório público
 
-Quando o repositório for privado, a consulta de Releases e o download dos assets requerem uma credencial GitHub **somente de leitura**. O token fica em `/etc/pp5ci-hotspot/github-token`, com acesso restrito, e nunca é enviado ao navegador.
+O canal oficial é `cleziotc/pp5ci-hotspot`. A consulta de releases e o download dos assets não dependem de token GitHub.
+
+O updater rejeita releases sem artefato e SHA-256 correspondentes.
