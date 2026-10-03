@@ -30,17 +30,31 @@ jobs:
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
 
-      - name: Create tag when needed
+      - name: Create or finalize release tag
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.validate.outputs.tag }}
         run: |
           set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           if git rev-parse "refs/tags/${TAG}" >/dev/null 2>&1; then
-            echo "Tag ${TAG} already exists; release assets will be built from that tag."
+            TAG_COMMIT="$(git rev-list -n 1 "${TAG}")"
+            HEAD_COMMIT="$(git rev-parse HEAD)"
+            if [ "${TAG_COMMIT}" != "${HEAD_COMMIT}" ]; then
+              if gh release view "${TAG}" >/dev/null 2>&1; then
+                echo "Release ${TAG} already exists; refusing to move its tag."
+                exit 1
+              fi
+              echo "Finalizing unpublished tag ${TAG} on current main commit."
+              git tag -fa "${TAG}" -m "PP5CI Hotspot ${TAG}"
+              git push --force origin "refs/tags/${TAG}"
+            else
+              echo "Tag ${TAG} already points to the current main commit."
+            fi
           else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git tag -a "${TAG}" -m "PP5CI Hotspot ${TAG}"
             git push origin "${TAG}"
           fi
