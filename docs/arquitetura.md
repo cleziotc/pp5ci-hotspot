@@ -143,13 +143,15 @@ O contrato visual fica em `docs/UI_CONTRACT.md`.
 
 ## 7. Administração
 
-Ações de escrita exigem token local em:
+Ações de escrita exigem a senha administrativa criada durante a instalação.
+
+O appliance guarda apenas salt + hash PBKDF2-SHA256 em:
 
 ```text
-/etc/pp5ci-hotspot/admin-token
+/etc/pp5ci-hotspot/admin-password.json
 ```
 
-O navegador mantém apenas a sessão administrativa temporária. O token não é retornado por endpoints.
+O navegador mantém a senha somente na memória da página administrativa atual; ela não é persistida em localStorage/sessionStorage e não é retornada por endpoints.
 
 Operações privilegiadas são delegadas a:
 
@@ -184,7 +186,7 @@ GitHub Releases é a fonte planejada para versões disponíveis. Cada release de
 
 O processo está descrito em `docs/RELEASES.md`.
 
-Para repositório privado, a API local usa uma credencial GitHub somente de leitura, armazenada apenas no appliance.
+A API consulta as GitHub Releases do repositório público `cleziotc/pp5ci-hotspot` sem token GitHub.
 
 ## 10. Regras de evolução
 
