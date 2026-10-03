@@ -49,7 +49,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RInE 'polar-mmdvm|polar_mmdvm|Polar MMDVM|cleziotc/polar-mmdvm' .             --exclude-dir=.git --exclude='THIRD_PARTY_NOTICES.md'; then
+          if grep -RInE 'polar-mmdvm|polar_mmdvm|Polar MMDVM|cleziotc/polar-mmdvm' .             --exclude-dir=.git --exclude='THIRD_PARTY_NOTICES.md' --exclude='ci.yml'; then
             echo "Legacy/private project reference found."
             exit 1
           fi
