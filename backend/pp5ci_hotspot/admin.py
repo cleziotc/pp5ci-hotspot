@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import hashlib
 import hmac
 import json
 import os
@@ -9,24 +11,44 @@ from typing import Any
 
 from fastapi import Header, HTTPException
 
-ADMIN_TOKEN_FILE = Path(os.getenv("PP5CI_HOTSPOT_ADMIN_TOKEN_FILE", "/etc/pp5ci-hotspot/admin-token"))
+ADMIN_PASSWORD_FILE = Path(os.getenv("PP5CI_HOTSPOT_ADMIN_PASSWORD_FILE", "/etc/pp5ci-hotspot/admin-password.json"))
 ADMIN_HELPER = os.getenv("PP5CI_HOTSPOT_ADMIN_HELPER", "/usr/local/sbin/pp5ci-hotspot-admin")
+PBKDF2_ITERATIONS = 310_000
 
 
-def _read_token() -> str:
+def _read_password_record() -> dict[str, Any]:
     try:
-        return ADMIN_TOKEN_FILE.read_text(encoding="utf-8").strip()
-    except OSError:
-        return ""
+        value = json.loads(ADMIN_PASSWORD_FILE.read_text(encoding="utf-8"))
+        return value if isinstance(value, dict) else {}
+    except (OSError, ValueError):
+        return {}
 
 
-def require_admin(x_polar_admin_token: str | None = Header(default=None)) -> None:
-    expected = _read_token()
-    if not expected:
-        raise HTTPException(status_code=503, detail="Admin token is not configured")
-    supplied = (x_polar_admin_token or "").strip()
-    if not supplied or not hmac.compare_digest(supplied, expected):
-        raise HTTPException(status_code=401, detail="Invalid admin token")
+def verify_admin_password(password: str) -> bool:
+    record = _read_password_record()
+    try:
+        salt = base64.b64decode(str(record["salt"]), validate=True)
+        expected = base64.b64decode(str(record["hash"]), validate=True)
+        iterations = int(record.get("iterations") or PBKDF2_ITERATIONS)
+    except (KeyError, ValueError, TypeError):
+        return False
+    if iterations < 100_000 or not salt or not expected:
+        return False
+    candidate = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations)
+    return hmac.compare_digest(candidate, expected)
+
+
+def require_admin(
+    x_pp5ci_hotspot_admin_password: str | None = Header(
+        default=None,
+        alias="X-PP5CI-Hotspot-Admin-Password",
+    )
+) -> None:
+    supplied = x_pp5ci_hotspot_admin_password or ""
+    if not _read_password_record():
+        raise HTTPException(status_code=503, detail="Senha de administrador ainda não foi configurada")
+    if not supplied or not verify_admin_password(supplied):
+        raise HTTPException(status_code=401, detail="Senha de administrador inválida")
 
 
 def run_admin_helper(command: str, payload: dict[str, Any] | None = None, timeout: int = 30) -> dict[str, Any]:
