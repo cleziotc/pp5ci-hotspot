@@ -119,7 +119,7 @@ def integer(value: Any, minimum: int, maximum: int, label: str) -> int:
 
 def valid_callsign(value: Any) -> str:
     callsign = str(value or "").strip().upper()
-    if not re.fullmatch(r"[A-Z0-9]{3,7}", callsign):
+    if not re.fullmatch(r"[A-Z0-9]{3,8}", callsign):
         fail("Indicativo inválido")
     return callsign
 
@@ -152,7 +152,7 @@ def reflector_value(base: Any, module: Any) -> tuple[str, str]:
 
 
 def restart_services(names: list[str]) -> None:
-    order = ["polar-dstargateway.service", "pp5ci-hotspot-host.service"]
+    order = ["pp5ci-hotspot-dstargateway.service", "pp5ci-hotspot-mmdvmhost.service"]
     selected = [name for name in order if name in names]
     for name in selected:
         proc = subprocess.run(["systemctl", "restart", name], text=True, capture_output=True, check=False)
@@ -299,9 +299,9 @@ def apply_settings(data: dict[str, Any]) -> dict[str, Any]:
     restarted: list[str] = []
     if do_restart:
         if gateway_changed:
-            restarted.append("polar-dstargateway.service")
+            restarted.append("pp5ci-hotspot-dstargateway.service")
         if host_changed:
-            restarted.append("pp5ci-hotspot-host.service")
+            restarted.append("pp5ci-hotspot-mmdvmhost.service")
         restart_services(restarted)
 
     return {
@@ -334,7 +334,7 @@ def update_hosts(data: dict[str, Any]) -> dict[str, Any]:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     result: dict[str, Any] = {}
     opener = urllib.request.build_opener()
-    opener.addheaders = [("User-Agent", "N0CALL-Hotspot/0.2")]
+    opener.addheaders = [("User-Agent", "PP5CI-Hotspot/0.2")]
 
     for protocol, (url, filename, _prefix, minimum) in HOST_SOURCES.items():
         try:
@@ -374,7 +374,7 @@ def update_hosts(data: dict[str, Any]) -> dict[str, Any]:
 
     restarted = False
     if as_bool(data.get("restart", True)):
-        restart_services(["polar-dstargateway.service"])
+        restart_services(["pp5ci-hotspot-dstargateway.service"])
         restarted = True
 
     return {"ok": True, "updated_at": updated_at, "sources": result, "gateway_restarted": restarted}
@@ -405,8 +405,8 @@ def set_hosts_schedule(data: dict[str, Any]) -> dict[str, Any]:
 def restart_service(data: dict[str, Any]) -> dict[str, Any]:
     target = str(data.get("service", "")).strip().lower()
     units = {
-        "mmdvmhost": "pp5ci-hotspot-host.service",
-        "dstargateway": "polar-dstargateway.service",
+        "mmdvmhost": "pp5ci-hotspot-mmdvmhost.service",
+        "dstargateway": "pp5ci-hotspot-dstargateway.service",
     }
     unit = units.get(target)
     if not unit:
@@ -468,7 +468,7 @@ def enable_ircddb(data: dict[str, Any]) -> dict[str, Any]:
             set_value(gateway, "ircddb_1", key, desired[key])
         set_value(gateway, "Log", "logIRCDDBTraffic", "true")
         atomic_write_ini(DSTARGATEWAY_CFG, gateway)
-        restart_services(["polar-dstargateway.service"])
+        restart_services(["pp5ci-hotspot-dstargateway.service"])
     return {
         "ok": True,
         "changed": changed,
@@ -476,7 +476,7 @@ def enable_ircddb(data: dict[str, Any]) -> dict[str, Any]:
         "hostname": hostname,
         "username": callsign,
         "logIRCDDBTraffic": True,
-        "restarted": ["polar-dstargateway.service"] if changed else [],
+        "restarted": ["pp5ci-hotspot-dstargateway.service"] if changed else [],
     }
 
 
