@@ -1,0 +1,42 @@
+name: Publish Tag
+
+on:
+  push:
+    branches:
+      - 'publish/v*'
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate publish branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          EXPECTED_BRANCH="publish/v${VERSION}"
+          test "${GITHUB_REF_NAME}" = "${EXPECTED_BRANCH}"
+          test -s "docs/releases/v${VERSION}.md"
+          git fetch origin main --quiet
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          if git rev-parse "refs/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists."
+            exit 1
+          fi
+
+      - name: Create release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${VERSION}" -m "PP5CI Hotspot v${VERSION}"
+          git push origin "v${VERSION}"
