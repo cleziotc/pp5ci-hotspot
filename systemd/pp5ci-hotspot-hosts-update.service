@@ -1,0 +1,8 @@
+[Unit]
+Description=PP5CI Hotspot - Update D-Star host files
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/pp5ci-hotspot-admin update-hosts
