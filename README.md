@@ -4,6 +4,9 @@ PP5CI Hotspot é um appliance D-STAR para Linux, com MMDVMHost + DStarGateway, d
 
 O nome **PP5CI Hotspot** identifica o projeto. O indicativo da estação **não é fixo no código**: durante a instalação o operador informa seu próprio indicativo, que é aplicado ao MMDVMHost, DStarGateway e ircDDB.
 
+<img width="1280" height="633" alt="image" src="https://github.com/user-attachments/assets/83c77bae-93c1-48f4-a7a5-781abed25552" />
+
+
 ## Versão atual
 
 **0.3.0** — primeira edição pública independente, baseada na linha funcional 0.2.14 e adaptada para instalação genérica em VM e Raspberry Pi.
