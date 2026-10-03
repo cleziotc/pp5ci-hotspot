@@ -1,0 +1,19 @@
+# PP5CI Hotspot - RSSI mapping for MMDVM_HS / ADF7021
+# The MMDVM_HS firmware used by this project reports the RSSI magnitude.
+# MMDVMHost maps that value to negative dBm through RSSIMappingFile.
+#
+# Raw RSSI    dBm
+43   -43
+53   -53
+63   -63
+73   -73
+83   -83
+93   -93
+99   -99
+105  -105
+111  -111
+117  -117
+123  -123
+129  -129
+135  -135
+141  -141
