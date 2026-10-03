@@ -76,8 +76,8 @@ def _uptime_seconds() -> float | None:
 def snapshot() -> dict[str, Any]:
     cfg = load_effective_config()
     runtime = get_runtime_state()
-    host_service = _service_state("pp5ci-hotspot-host.service")
-    gateway_service = _service_state("polar-dstargateway.service")
+    host_service = _service_state("pp5ci-hotspot-mmdvmhost.service")
+    gateway_service = _service_state("pp5ci-hotspot-dstargateway.service")
     mqtt_service = _service_state("mosquitto.service")
     collector_service = _service_state("pp5ci-hotspot-collector.service")
 
@@ -103,7 +103,7 @@ def snapshot() -> dict[str, Any]:
     return {
         "hotspot": {
             "callsign": cfg["callsign"],
-            "name": get_metadata("settings_hotspot_name", os.getenv("PP5CI_HOTSPOT_HOTSPOT_NAME", "PP5CI Hotspot Hotspot")),
+            "name": get_metadata("settings_hotspot_name", os.getenv("PP5CI_HOTSPOT_HOTSPOT_NAME", "PP5CI Hotspot")),
             "module": cfg["module"],
             "rx_frequency_hz": cfg["rx_frequency_hz"],
             "tx_frequency_hz": cfg["tx_frequency_hz"],
