@@ -39,21 +39,25 @@ O checksum é obrigatório para a página Updates considerar o pacote instaláve
 
 ## Workflow
 
-O processo público usa dois workflows:
+O processo público possui dois caminhos compatíveis:
 
-- `.github/workflows/publish.yml`: aceita somente branches `publish/vX.Y.Z`, exige que o nome coincida com `VERSION`, exige a nota de release e confirma que o commit é exatamente o mesmo de `main`. Só então cria a tag.
-- `.github/workflows/release.yml`: é disparado pela tag `v*`.
+- `.github/workflows/publish.yml`: caminho recomendado. Uma branch `publish/vX.Y.Z` deve apontar exatamente para o commit de `main`. O workflow valida `VERSION` e release notes, cria/finaliza a tag, executa testes, monta tar.gz + SHA-256 e publica a GitHub Release na mesma execução.
+- `.github/workflows/release.yml`: caminho alternativo para uma tag `v*` enviada manualmente por um mantenedor.
 
-O workflow de release:
+O publicador recomendado:
 
-1. confere se a tag corresponde ao arquivo `VERSION`;
-2. executa os testes do backend e o build do frontend;
-3. inclui `frontend/dist` no pacote;
-4. gera o tarball;
-5. calcula SHA-256;
-6. publica a GitHub Release usando as notas versionadas.
+1. confirma que a branch é exatamente `publish/v<conteúdo de VERSION>`;
+2. confirma que o commit é o mesmo de `main`;
+3. exige `docs/releases/vX.Y.Z.md`;
+4. cria a tag; uma tag ainda sem Release pode ser finalizada para o commit atual, mas uma tag de Release já publicada nunca é movida;
+5. executa testes do backend;
+6. compila o frontend;
+7. valida os instaladores;
+8. inclui `frontend/dist` no pacote;
+9. gera tar.gz e SHA-256;
+10. publica a GitHub Release.
 
-Para publicar uma versão, crie a branch `publish/vX.Y.Z` a partir do commit estável de `main`. O fluxo não aceita publicar uma branch que esteja divergente da `main`.
+Para publicar uma versão, crie a branch `publish/vX.Y.Z` a partir do commit estável de `main`. O fluxo rejeita uma branch divergente.
 
 ## Instalação pela página Updates
 
