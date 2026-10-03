@@ -1,0 +1,18 @@
+[Unit]
+Description=PP5CI Hotspot - DStarGateway
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=mmdvm
+Group=mmdvm
+WorkingDirectory=/opt/pp5ci-hotspot
+ExecStart=/opt/pp5ci-hotspot/bin/dstargateway /etc/pp5ci-hotspot/DStarGateway.cfg
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
