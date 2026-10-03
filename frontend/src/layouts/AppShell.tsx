@@ -2,7 +2,7 @@ import type { PropsWithChildren } from 'react'
 import { useEffect, useState } from 'react'
 import { Activity, BarChart3, Info, LayoutDashboard, RadioTower, RefreshCw, Settings } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
-import { getStatus, type PolarStatus } from '../api/client'
+import { getStatus, type HotspotStatus } from '../api/client'
 
 const nav = [
   ['/', 'Dashboard', LayoutDashboard],
@@ -28,7 +28,7 @@ function Clock() {
 }
 
 export default function AppShell({ children }: PropsWithChildren) {
-  const [status, setStatus] = useState<PolarStatus | null>(null)
+  const [status, setStatus] = useState<HotspotStatus | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -54,8 +54,8 @@ export default function AppShell({ children }: PropsWithChildren) {
     status.services.dstargateway.active === 'active',
   )
   const title = status?.hotspot.callsign
-    ? `${status.hotspot.callsign} ${status.hotspot.name || 'PP5CI Hotspot Hotspot'}`
-    : 'PP5CI Hotspot Hotspot'
+    ? `${status.hotspot.callsign} ${status.hotspot.name || 'PP5CI Hotspot'}`
+    : 'PP5CI Hotspot'
 
   return (
     <div className="app-shell">
