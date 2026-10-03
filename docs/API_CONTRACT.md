@@ -90,7 +90,7 @@ Retorna configuração efetiva de Geral, MMDVMHost, DStarGateway, Hosts, Users e
 
 ### POST /api/v1/settings/admin/check
 
-Valida a sessão administrativa sem retornar o token.
+Valida a senha administrativa enviada no header sem retornar a credencial.
 
 ### POST /api/v1/settings/apply/{section}
 
@@ -185,16 +185,23 @@ download → SHA-256 → preparação → backup → instalação → reinício 
 
 A atualização não reinicia MMDVMHost nem DStarGateway; esses serviços são apenas verificados no health check. Configuração e banco permanecem preservados.
 
-## 7. GitHub privado
+## 7. GitHub público e autenticação administrativa
 
-A API deve suportar:
+A API usa:
 
 ```text
 PP5CI_HOTSPOT_GITHUB_REPOSITORY=cleziotc/pp5ci-hotspot
-PP5CI_HOTSPOT_GITHUB_TOKEN=...
 ```
 
-O token é somente de leitura para consulta de releases e assets e nunca é retornado ao frontend.
+Releases públicas são consultadas sem token GitHub.
+
+Operações administrativas usam a senha criada no instalador, enviada no header:
+
+```text
+X-PP5CI-Hotspot-Admin-Password
+```
+
+A senha original não é armazenada pelo backend; apenas o hash PBKDF2-SHA256 é persistido em `/etc/pp5ci-hotspot/admin-password.json`.
 
 ## 8. Persistência e integridade
 
