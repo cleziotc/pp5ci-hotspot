@@ -56,10 +56,10 @@ SQLite opera em WAL. Backups devem incluir banco e arquivos WAL/SHM de forma con
 /etc/pp5ci-hotspot/DStarGateway.cfg
 /etc/pp5ci-hotspot/RSSI.dat
 /etc/pp5ci-hotspot/web.env
-/etc/pp5ci-hotspot/admin-token
+/etc/pp5ci-hotspot/admin-password.json
 ```
 
-O `admin-token` não deve ser exibido em logs, screenshots ou respostas da API.
+O arquivo de hash administrativo não deve ser exibido em logs, screenshots ou respostas da API. A senha original nunca é armazenada.
 
 ## Frontend
 
@@ -138,7 +138,7 @@ Download → Preparação → Backup → Instalação → Reinício → Health c
 
 Regras operacionais:
 
-- o artefato e o arquivo `.sha256` são baixados da release privada autenticada;
+- o artefato e o arquivo `.sha256` são baixados da release pública oficial;
 - o SHA-256 é conferido antes da extração;
 - o tarball rejeita caminhos inseguros, devices e links;
 - somente a camada web é substituída;
@@ -155,10 +155,4 @@ Estado e histórico:
 /var/lib/pp5ci-hotspot/update-history.json
 ```
 
-O token GitHub somente de leitura permanece em:
-
-```text
-/etc/pp5ci-hotspot/github-token
-```
-
-Nunca exibir o conteúdo desse arquivo em logs ou na interface.
+O canal oficial de updates é o repositório público `cleziotc/pp5ci-hotspot`; não é necessário token GitHub para consultar ou baixar releases.
