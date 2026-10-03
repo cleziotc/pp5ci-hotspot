@@ -42,7 +42,7 @@ WEB_UNITS = (
     "pp5ci-hotspot-hosts-update.service",
     "pp5ci-hotspot-hosts-update.timer",
 )
-RF_UNITS = ("pp5ci-hotspot-host.service", "polar-dstargateway.service")
+RF_UNITS = ("pp5ci-hotspot-mmdvmhost.service", "pp5ci-hotspot-dstargateway.service")
 PROGRESS = {"download": 10, "preparation": 25, "backup": 40, "installation": 70, "restart": 85, "health_check": 95, "done": 100}
 
 
