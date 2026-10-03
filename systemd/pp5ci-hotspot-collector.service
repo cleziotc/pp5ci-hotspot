@@ -1,0 +1,19 @@
+[Unit]
+Description=PP5CI Hotspot - MQTT Collector
+Wants=network-online.target mosquitto.service pp5ci-hotspot-mmdvmhost.service
+After=network-online.target mosquitto.service pp5ci-hotspot-mmdvmhost.service
+
+[Service]
+Type=simple
+User=mmdvm
+Group=mmdvm
+WorkingDirectory=/opt/pp5ci-hotspot/backend
+EnvironmentFile=-/etc/pp5ci-hotspot/web.env
+ExecStart=/opt/pp5ci-hotspot/venv/bin/python -m pp5ci_hotspot.collector
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
