@@ -20,16 +20,16 @@ router = APIRouter(prefix="/api/v1/diagnostics", tags=["diagnostics"])
 
 HOST_TIMER_DROPIN = Path("/etc/systemd/system/pp5ci-hotspot-hosts-update.timer.d/schedule.conf")
 SYSTEMD_UNITS = [
-    ("MMDVMHost", "pp5ci-hotspot-host.service"),
-    ("DStarGateway", "polar-dstargateway.service"),
+    ("MMDVMHost", "pp5ci-hotspot-mmdvmhost.service"),
+    ("DStarGateway", "pp5ci-hotspot-dstargateway.service"),
     ("Collector", "pp5ci-hotspot-collector.service"),
     ("API", "pp5ci-hotspot-api.service"),
     ("Mosquitto", "mosquitto.service"),
     ("Nginx", "nginx.service"),
 ]
 LOG_UNITS = [
-    "pp5ci-hotspot-host.service",
-    "polar-dstargateway.service",
+    "pp5ci-hotspot-mmdvmhost.service",
+    "pp5ci-hotspot-dstargateway.service",
     "pp5ci-hotspot-collector.service",
     "pp5ci-hotspot-api.service",
 ]
@@ -122,7 +122,7 @@ def _usb_properties(device: str) -> dict[str, str]:
 
 
 def _mmdvm_firmware() -> str | None:
-    proc = _run(["journalctl", "-u", "pp5ci-hotspot-host.service", "-n", "300", "--no-pager", "-o", "cat"], 4)
+    proc = _run(["journalctl", "-u", "pp5ci-hotspot-mmdvmhost.service", "-n", "300", "--no-pager", "-o", "cat"], 4)
     if not proc or proc.returncode != 0:
         return None
     for line in reversed(proc.stdout.splitlines()):
@@ -277,16 +277,16 @@ def _checks(
     directory: dict[str, Any],
 ) -> list[dict[str, Any]]:
     service_map = {item["unit"]: item for item in services}
-    host_ok = service_map.get("pp5ci-hotspot-host.service", {}).get("active") == "active"
-    gateway_ok = service_map.get("polar-dstargateway.service", {}).get("active") == "active"
+    host_ok = service_map.get("pp5ci-hotspot-mmdvmhost.service", {}).get("active") == "active"
+    gateway_ok = service_map.get("pp5ci-hotspot-dstargateway.service", {}).get("active") == "active"
     ports_ok = all(item["listening"] for item in ports)
     disk_ok = disk["used_percent"] < 90
     load_percent = load.get("load_percent")
     load_ok = load_percent is None or load_percent < 100
     return [
         {"name": "Serial link", "ok": host_ok and serial["present"], "detail": serial["device"] or "não encontrado"},
-        {"name": "MMDVMHost", "ok": host_ok, "detail": service_map.get("pp5ci-hotspot-host.service", {}).get("sub", "unknown")},
-        {"name": "DStarGateway", "ok": gateway_ok, "detail": service_map.get("polar-dstargateway.service", {}).get("sub", "unknown")},
+        {"name": "MMDVMHost", "ok": host_ok, "detail": service_map.get("pp5ci-hotspot-mmdvmhost.service", {}).get("sub", "unknown")},
+        {"name": "DStarGateway", "ok": gateway_ok, "detail": service_map.get("pp5ci-hotspot-dstargateway.service", {}).get("sub", "unknown")},
         {"name": "CSV users loaded", "ok": int(directory.get("count") or 0) > 0, "detail": f'{int(directory.get("count") or 0)} registros'},
         {"name": "Hosts update timer", "ok": timer.get("active") == "active", "detail": f'diário {timer.get("schedule", "—")}'},
         {"name": "Network / UDP ports", "ok": ports_ok, "detail": "20010 / 20011" if ports_ok else "porta indisponível"},
@@ -355,8 +355,8 @@ def serial_check() -> dict[str, Any]:
 @router.post("/dstar-check")
 def dstar_check() -> dict[str, Any]:
     cfg = load_effective_config()
-    host = _service_info("MMDVMHost", "pp5ci-hotspot-host.service")
-    gateway = _service_info("DStarGateway", "polar-dstargateway.service")
+    host = _service_info("MMDVMHost", "pp5ci-hotspot-mmdvmhost.service")
+    gateway = _service_info("DStarGateway", "pp5ci-hotspot-dstargateway.service")
     ports = [
         _udp_bound(str(cfg["gateway_address"]), int(cfg["gateway_port"])),
         _udp_bound(str(cfg["local_address"]), int(cfg["local_port"])),
