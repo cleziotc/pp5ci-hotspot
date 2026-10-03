@@ -345,7 +345,7 @@ async function requestJson<T>(
 
 export const getSettings = () => requestJson<SettingsState>('/api/v1/settings')
 
-export const checkAdminToken = (token: string) =>
+export const checkAdminPassword = (token: string) =>
   requestJson<{ ok: boolean }>('/api/v1/settings/admin/check', { method: 'POST', body: '{}' }, token)
 
 export const applySettings = (
