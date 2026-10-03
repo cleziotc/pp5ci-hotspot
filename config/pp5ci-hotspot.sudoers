@@ -1,0 +1,9 @@
+# PP5CI Hotspot controlled administration helper.
+# The helper is root-owned and validates every accepted operation.
+mmdvm ALL=(root) NOPASSWD: /usr/local/sbin/pp5ci-hotspot-admin apply
+mmdvm ALL=(root) NOPASSWD: /usr/local/sbin/pp5ci-hotspot-admin update-hosts
+mmdvm ALL=(root) NOPASSWD: /usr/local/sbin/pp5ci-hotspot-admin set-hosts-schedule
+mmdvm ALL=(root) NOPASSWD: /usr/local/sbin/pp5ci-hotspot-admin restart-service
+mmdvm ALL=(root) NOPASSWD: /usr/local/sbin/pp5ci-hotspot-admin enable-ircddb
+mmdvm ALL=(root) NOPASSWD: /usr/local/sbin/pp5ci-hotspot-admin start-update
+mmdvm ALL=(root) NOPASSWD: /usr/local/sbin/pp5ci-hotspot-admin start-rollback
