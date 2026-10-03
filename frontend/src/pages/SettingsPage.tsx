@@ -106,7 +106,6 @@ export default function SettingsPage() {
     setBusy(true)
     try {
       await checkAdminPassword(password)
-      sessionStorage.setItem('polar-admin-token', token)
       setAdminPassword(password)
       setAdminOk(true)
       setNotice({ tone: 'good', text: 'Sessão administrativa habilitada neste navegador.' })
@@ -118,7 +117,8 @@ export default function SettingsPage() {
     }
   }
 
-  const lockAdmin = () => {    setAdminPassword('')
+  const lockAdmin = () => {
+    setAdminPassword('')
     setAdminInput('')
     setAdminOk(false)
     setNotice({ tone: 'info', text: 'Sessão administrativa encerrada.' })
