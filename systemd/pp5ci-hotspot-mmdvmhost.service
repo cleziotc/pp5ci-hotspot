@@ -1,0 +1,20 @@
+[Unit]
+Description=PP5CI Hotspot - MMDVMHost
+Wants=network-online.target
+Requires=pp5ci-hotspot-dstargateway.service
+After=network-online.target pp5ci-hotspot-dstargateway.service
+
+[Service]
+Type=simple
+User=mmdvm
+Group=mmdvm
+SupplementaryGroups=dialout
+WorkingDirectory=/opt/pp5ci-hotspot
+ExecStart=/opt/pp5ci-hotspot/bin/MMDVM-Host /etc/pp5ci-hotspot/MMDVM-Host.ini
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
