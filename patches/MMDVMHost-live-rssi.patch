@@ -1,0 +1,60 @@
+diff --git a/DStarControl.cpp b/DStarControl.cpp
+--- a/DStarControl.cpp
++++ b/DStarControl.cpp
+@@ -26,7 +26,7 @@
+ 
+ const unsigned int MAX_SYNC_BIT_ERRORS = 2U;
+ 
+-const unsigned int RSSI_COUNT = 3U * 21U;	// 3 * 420ms = 1260ms
++const unsigned int RSSI_COUNT = 1U;		// one RSSI sample (~420ms)
+ const unsigned int BER_COUNT  = 50U * 48U;	// 50 * 20ms = 1000ms
+ 
+ bool CallsignCompare(const std::string& arg, const unsigned char* my)
+@@ -195,6 +195,7 @@ bool CDStarControl::writeModem(unsigned char *data, unsigned int len)
+ 		m_rssiCountTotal++;
+ 
+ 		m_rssiAccum += m_rssi;
++		m_rssiCount++;
+ 	}
+ 
+ 	// Have we got RSSI bytes on the end of D-Star data?
+@@ -217,6 +218,7 @@ bool CDStarControl::writeModem(unsigned char *data, unsigned int len)
+ 		m_rssiCountTotal++;
+ 
+ 		m_rssiAccum += m_rssi;
++		m_rssiCount++;
+ 	}
+ 
+ 	if (type == TAG_HEADER) {
+@@ -576,6 +578,9 @@ bool CDStarControl::writeModem(unsigned char *data, unsigned int len)
+ 			m_aveRSSI = m_rssi;
+ 			m_rssiCountTotal = 1U;
+ 
++			m_rssiAccum = m_rssi;
++			m_rssiCount = 1U;
++
+ 			if (m_duplex) {
+ 				unsigned char start[DSTAR_HEADER_LENGTH_BYTES + 1U];
+ 				start[0U] = TAG_HEADER;
+@@ -1424,17 +1429,17 @@ void CDStarControl::writeJSONRSSI()
+ 	if (m_rssi == 0)
+ 		return;
+ 
+-	if (m_rssiCountTotal >= RSSI_COUNT) {
++	if (m_rssiCount >= RSSI_COUNT) {
+ 		nlohmann::json json;
+ 
+ 		json["timestamp"] = CUtils::createTimestamp();
+ 		json["mode"]      = "D-Star";
+ 
+-		json["value"]     = m_rssiAccum / int(m_rssiCountTotal);
++		json["value"]     = m_rssiAccum / int(m_rssiCount);
+ 
+ 		WriteJSON("RSSI", json);
+ 
+-		m_rssiAccum      = 0;
+-		m_rssiCountTotal = 0U;
++		m_rssiAccum = 0;
++		m_rssiCount = 0U;
+ 	}
+ }
